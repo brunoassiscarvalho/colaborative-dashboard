@@ -1,26 +1,67 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useCallback } from "react";
+import "./global.css";
+import ReactFlow, {
+  useNodesState,
+  useEdgesState,
+  addEdge,
+  Connection,
+  Edge,
+  Controls,
+  Background,
+  Node,
+} from "reactflow";
 
-function App() {
+import "reactflow/dist/style.css";
+import { ScreenNode } from "./nodes/Screen";
+import { JobRequestNode } from "./nodes/JobRequestNode";
+import { StartPointNode } from "./nodes/StartPoint";
+
+const NODE_TYPES = {
+  screen: ScreenNode,
+  jobRequest: JobRequestNode,
+  startPoint: StartPointNode
+};
+
+const initialNodes = [
+  { id: "1", type: "screen", position: { x: 0, y: 0 }, data: { label: "1" } },
+  {
+    id: "2",
+    type: "jobRequest",
+    position: { x: 0, y: 100 },
+    data: { label: "2" },
+  },
+  {
+    id: "3",
+    type: "startPoint",
+    position: { x: 100, y: 100 },
+    data: { label: "2" },
+  },
+] satisfies Node[];
+const initialEdges = [{ id: "e1-2", source: "1", target: "2" }];
+
+export default function App() {
+  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
+  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+
+  const onConnect = useCallback(
+    (params: Edge | Connection) => setEdges((eds) => addEdge(params, eds)),
+    [setEdges]
+  );
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div style={{ width: "100vw", height: "100vh" }}>
+      <ReactFlow
+        nodeTypes={NODE_TYPES}
+        nodes={nodes}
+        edges={edges}
+        onNodesChange={onNodesChange}
+        onEdgesChange={onEdgesChange}
+        onConnect={onConnect}
+        fitView
+      >
+        <Background />
+        <Controls />
+      </ReactFlow>
     </div>
   );
 }
-
-export default App;
